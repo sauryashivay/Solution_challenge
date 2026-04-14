@@ -33,16 +33,16 @@ class PREDICTOR:
         return self.model.predict(self.scaled_output)
 
 # Example usage for testing and local validation
-# if __name__=="__main__":
-#     # Sample scaled and encoded input vector
-#     scaled_output = [[-0.92754658,0.14694918,-0.62781066,-0.73866754,-0.67028006,0.67028006
-#         ,-0.3479601 ,  0.63444822 ,-0.4669334 ,  0.81140298 , -0.33886163 , -0.25929878
-#         ,-0.22454436 , -0.47327604 , -0.61433742 , 1.6484757 , -0.25929878 , -0.80632811
-#         ,-0.32774947 , -0.71294854 , -0.11020775 ,  -0.2503982 , -0.47010767 , 1.60356745
-#         ,-0.14998296 , -0.11020775]]
+if __name__=="__main__":
+    # Sample scaled and encoded input vector
+    scaled_output = [[-0.92754658,0.14694918,-0.62781066,-0.73866754,-0.67028006,0.67028006
+        ,-0.3479601 ,  0.63444822 ,-0.4669334 ,  0.81140298 , -0.33886163 , -0.25929878
+        ,-0.22454436 , -0.47327604 , -0.61433742 , 1.6484757 , -0.25929878 , -0.80632811
+        ,-0.32774947 , -0.71294854 , -0.11020775 ,  -0.2503982 , -0.47010767 , 1.60356745
+        ,-0.14998296 , -0.11020775]]
     
-#     # Initialize the predictor instance with the sample data
-#     predictor = PREDICTOR(scaled_output)
+    # Initialize the predictor instance with the sample data
+    predictor = PREDICTOR(scaled_output)
     
-#     # Execute and print the prediction result
-#     print(predictor.run())
+    # Execute and print the prediction result
+    print(type(predictor.run()[0]))
