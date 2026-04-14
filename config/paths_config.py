@@ -4,8 +4,7 @@ import os
 
 load_dotenv()
 
-# Base directory (project root safe)
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Data directories
 RAW_DIR = BASE_DIR / "data" / "raw"
@@ -21,9 +20,11 @@ ENCODER_FILE_PATH = MODELS_DIR / "encoder.pkl"
 MODEL_FILE_PATH = MODELS_DIR / "model.pkl"
 SCALER_FILE_PATH = MODELS_DIR / "scaler.pkl"
 
-# Environment variables
-API_KEY = os.getenv("API_KEY")
-
 # LLM config
 LLM_MODEL = "openai/gpt-oss-120b"
 BASE_URL = "https://api.groq.com/openai/v1"
+API_KEY = os.getenv("API_KEY")
+
+# Template path
+TEMPLATE_DIR = BASE_DIR / "templates"
+PROMPT_TEMPLATE_PATH = TEMPLATE_DIR / "prompt_v1.txt"
