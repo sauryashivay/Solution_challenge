@@ -26,6 +26,7 @@ class CustomerData(BaseModel):
 
     age: int = Field(alias="Age")
     job: int = Field(alias="Job")
+    sex: str = Field(alias="Sex")
     housing: str = Field(alias="Housing")
     saving_accounts: Optional[str] = Field(default="unknown", alias="Saving accounts")
     checking_account: Optional[str] = Field(default="unknown", alias="Checking account")

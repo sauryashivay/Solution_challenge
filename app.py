@@ -16,36 +16,32 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # 1. Get data from the frontend
-        user_input = request.json  # This is already a dict
+        # 1. Get data from the frontend (this is a dictionary)
+        user_input = request.json
         
         # 2. ML Preprocessing & Prediction
         processor = PREPROCESSING(user_input)
         processed_data = processor.run()
-        
         predictor = PREDICTOR(processed_data)
-        ml_prediction = int(predictor.run()[0]) 
-        
-        # 3. Create the Risk label
-        risk_label = "good" if ml_prediction == 1 else "bad"
-            
-        # 4. Prepare LLM Input (Merge the two dicts)
-        # This takes all fields from user_input and adds/updates "Risk"
-        llm_payload = {**user_input, "Risk": risk_label}
-        
-        # 5. Get LLM Analysis using the Pydantic model
+        ml_prediction = predictor.run()[0] 
+
+        # 4. Prepare LLM Input (Merge the dicts)
+        # This creates a single dictionary containing all user_input PLUS the Risk
+        llm_payload = {**user_input, "Risk": ml_prediction}
+
+        # 5. Get LLM Analysis
+        # Pydantic will now receive a clean dictionary with 'good' or 'bad' for Risk
         customer = CustomerData(**llm_payload)
         llm_text = LLM_ENGINE.get_description(customer)
         
         return jsonify({
-            'ml_output': "Low Risk" if ml_prediction == 1 else "High Risk",
+            'ml_output': "High Risk" if ml_prediction=="bad" else "Low Risk",
             'llm_output': llm_text,
             'status': 'success'
         })
         
     except Exception as e:
-        # Log the error to your console so you can see exactly what went wrong
-        print(f"Error: {e}")
+        print(f"Log Error: {e}") # This helps you see the trace in your terminal
         return jsonify({'status': 'error', 'message': str(e)})
 
 if __name__ == '__main__':

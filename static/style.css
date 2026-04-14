@@ -27,9 +27,18 @@ input, select {
 }
 
 .predict-btn {
-    width: 100%; padding: 15px; margin-top: 20px;
-    background: #007bff; color: white; border: none;
-    border-radius: 8px; font-size: 1.1em; cursor: pointer;
+    width: 100%; 
+    padding: 15px; 
+    margin-top: 20px;
+    background: #007bff; 
+    color: white; 
+    border: none;
+    border-radius: 8px; 
+    font-size: 1.1em; 
+    cursor: pointer;
+    
+    /* ADD THIS LINE TO STOP THE STRETCHING */
+    align-self: flex-start; 
 }
 
 .results-container {
