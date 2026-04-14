@@ -4,14 +4,24 @@ from openai import OpenAI
 from pydantic import BaseModel, Field, ConfigDict
 from config import paths_config
 from dotenv import load_dotenv
+
 load_dotenv()
 
-# 1. Define the Data Schema
 class CustomerData(BaseModel):
     """
-    Schema for input features.
-    """
+    Data model representing a customer's financial and personal profile.
     
+    Attributes:
+        age (int): The age of the customer.
+        job (int): Numerical category for job type (0-3).
+        housing (str): Housing status (e.g., 'own', 'rent').
+        saving_accounts (str): Status of savings account.
+        checking_account (str): Status of checking account.
+        credit_amount (int): Total loan amount requested.
+        duration (int): Loan duration in months.
+        purpose (str): Stated reason for the loan.
+        risk (str): The ML model's risk classification ('good' or 'bad').
+    """
     model_config = ConfigDict(populate_by_name=True)
 
     age: int = Field(alias="Age")
@@ -26,17 +36,27 @@ class CustomerData(BaseModel):
 
 
 class RiskExplanation(BaseModel):
-    """Schema for validating the LLM output."""
+    """Schema for validating and structuring the LLM's natural language output."""
     description: str
 
-# 2. Define the LLM Engine Class
+
 class CreditLLMEngine:
+    """
+    Engine for generating human-readable explanations of credit risk predictions.
+    
+    This class orchestrates the communication between the application and the 
+    LLM provider (Groq/OpenAI), handling prompt hydration and response validation.
+    """
+
     def __init__(self, model: str = None, base_url: str = None, api_key: str = None):
         """
-        The code logic stays here, but the values come from config.py.
-        Priority: Argument > Environment Variable > Config File
+        Initializes the LLM client with tiered configuration resolution.
+        
+        Priority: 
+        1. Explicit arguments passed during instantiation.
+        2. Environment variables set in the OS/Cloud dashboard.
+        3. Fallback defaults defined in the paths_config module.
         """
-        # Resolve values dynamically
         self.model = model or os.getenv("MODEL_NAME") or paths_config.LLM_MODEL
         final_url = base_url or os.getenv("BASE_URL") or paths_config.BASE_URL
         final_key = api_key or os.getenv("API_KEY") or paths_config.API_KEY
@@ -47,33 +67,55 @@ class CreditLLMEngine:
         )
 
     def _generate_prompt(self, data: CustomerData) -> str:
-        return f"""
-        SYSTEM: You are a world-class financial risk communicator. 
-        Your goal is to translate complex credit data into friendly, actionable advice.
-
-        DATA INPUT:
-        - Risk Classification: {data.risk}
-        - Loan Details: {data.credit_amount} USD over {data.duration} months.
-        - Purpose: {data.purpose}
-        - Financial Profile: {data.checking_account} checking balance, {data.saving_accounts} savings.
-        - Personal: Age {data.age}, Job Level {data.job}, Housing: {data.housing}.
-
-        TASK:
-        1. ANALYZE (Internal): Briefly identify the top 2 factors contributing to the {data.risk} rating.
-        2. EXPLAIN: Write a 3-5 line explanation for the customer. 
-           - Use the "Friend at a Coffee Shop" tone.
-           - Avoid jargon like "debt-to-income" or "liquidity."
-           - Focus on what the data means for their life.
-        3. ADVISE: If the risk is 'bad', provide 1 specific, non-obvious tip to improve. 
-
-        CONSTRAINTS:
-        - No bullet points.
-        - No bold text.
-        - Start directly with the explanation.
         """
+        Loads the external prompt template and injects customer data.
+
+        Args:
+            data (CustomerData): The validated customer and prediction data.
+
+        Returns:
+            str: The fully hydrated prompt string ready for LLM inference.
+
+        Raises:
+            FileNotFoundError: If the template path in config is invalid.
+        """
+        try:
+            template_path = paths_config.PROMPT_TEMPLATE_PATH
+            
+            with open(template_path, "r") as f:
+                template_content = f.read()
+            
+            return template_content.format(
+                risk=data.risk,
+                credit_amount=data.credit_amount,
+                duration=data.duration,
+                purpose=data.purpose,
+                checking_account=data.checking_account,
+                saving_accounts=data.saving_accounts,
+                age=data.age,
+                job=data.job,
+                housing=data.housing
+            )
+        except FileNotFoundError as e:
+            print(f"ERROR: Template file missing: {e}")
+            raise
+        except Exception as e:
+            print(f"ERROR: Prompt generation failed: {e}")
+            raise
 
     def get_description(self, data: CustomerData) -> str:
-        """Processes the CustomerData and returns only the text description."""
+        """
+        Submits data to the LLM and returns a natural language risk explanation.
+
+        This method handles the high-level API call logic, system role definition,
+        and provides a fallback message in case of service interruption.
+
+        Args:
+            data (CustomerData): The customer profile to explain.
+
+        Returns:
+            str: A short, simple explanation of the credit risk.
+        """
         try:
             prompt = self._generate_prompt(data)
             
@@ -94,16 +136,14 @@ class CreditLLMEngine:
             )
             
             content = response.choices[0].message.content
-            
-            # Validation via Pydantic
             result = RiskExplanation(description=content)
             return result.description
 
         except Exception as e:
-            # Better error logging for debugging during your M.Tech work
             print(f"DEBUG: LLM Inference failed: {e}") 
-            return f"I'm sorry, I couldn't generate an explanation right now. (Error: {str(e)})"
-
+            return "I'm sorry, I couldn't generate an explanation at this moment."
+        
+        
 # # --- Usage Example (How to call this in your main app) ---
 # if __name__ == "__main__":
 #     # Initialize (will use env vars or defaults automatically)
