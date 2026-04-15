@@ -127,7 +127,7 @@
                 <div class="result-card">
                     <h3>LLM Explanation</h3>
                     <div class="output-box">
-                        <div id="llmResult" class="risk-badge neutral">
+                        <div id="llmResult" >
                             Awaiting analysis...
                         </div>
                     </div>          
@@ -192,6 +192,21 @@
                 alert("Failed to connect: " + error);
             }
         };
+    </script>
+
+    <script>
+        window.addEventListener("pageshow", () => {
+            const form = document.getElementById("riskForm");
+            const badge = document.getElementById("riskBadge");
+            const llmBox = document.getElementById("llmResult");
+
+            form.reset();
+
+            badge.innerText = "Awaiting analysis...";
+            badge.className = "risk-badge neutral";
+
+            llmBox.innerText = "Awaiting analysis...";
+        });
     </script>
 
 </body>

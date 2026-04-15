@@ -1,21 +1,29 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 from src.preprocess import PREPROCESSING
 from src.predictor import PREDICTOR
 from src.llm_engine import CustomerData, CreditLLMEngine
 
 
 app = Flask(__name__)
-LLM_ENGINE = CreditLLMEngine()
+LLM_ENGINE = CreditLLMEngine()  
 
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    response = make_response(render_template('home.html'))
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @app.route('/predict-page')
 def predict_page():
-    return render_template('index.html')
+    response = make_response(render_template('index.html'))
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @app.route('/predict', methods=['POST'])
