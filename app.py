@@ -37,7 +37,7 @@ def predict():
 
         predictor = PREDICTOR(processed_data)
         ml_prediction = predictor.run()[0]  
-        ml_output: "High Risk" if ml_prediction == "bad" else "Low Risk"
+        ml_output = "High Risk" if ml_prediction == "bad" else "Low Risk"
 
         llm_payload = {
             **user_input,
