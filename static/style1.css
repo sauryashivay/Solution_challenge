@@ -163,17 +163,26 @@ header p {
     box-shadow: 0 0 0 3px rgba(94, 75, 219, 0.2);
 }
 
+.contributor::before {
+    content: "👤 ";
+    margin-right: 6px;
+    opacity: 0.8;
+}
 
 .predict-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     width: 100%;
     height: 48px;
     margin-top: 1rem;
 
-    border: none;
     border-radius: 12px;
 
     background: linear-gradient(135deg, #5e4bdb, #4338ca);
     color: white;
+    text-decoration: none;
 
     cursor: pointer;
 }
